@@ -1,32 +1,88 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProduct } from "@/lib/products";
+import { dbService } from "@/lib/db/service";
+import { isBotTraffic, hashIp, generateClickId, appendTrackingParam } from "@/lib/affiliate/tracker";
 
 const ALLOWED_PROTOCOLS = new Set(["https:"]);
 
-export async function GET(_request: NextRequest, context: { params: Promise<{ slug: string }> }) {
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ slug: string }> }
+) {
   const { slug } = await context.params;
-  const product = getProduct(slug);
-  if (!product) return new NextResponse("Product not found", { status: 404 });
+  const product = await dbService.getProductBySlug(slug);
 
-  // Affiliate URLs are deliberately unset in demo data. Configure and verify
-  // a real merchant affiliate URL before enabling a redirect.
+  if (!product) {
+    return new NextResponse("Product not found in catalogue", {
+      status: 404,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+
+  // Affiliate URL guard: unset URLs return 503 rather than broken redirect
   if (!product.affiliateUrl) {
     return new NextResponse(
-      "This retailer link has not been configured yet. Please check back later.",
-      { status: 503, headers: { "Cache-Control": "no-store" } }
+      `The merchant destination for "${product.name}" is currently being verified by our editorial team. Please check back shortly.`,
+      { status: 503, headers: { "Cache-Control": "no-store", "Content-Type": "text/plain" } }
     );
   }
 
-  let destination: URL;
+  // Destination URL security check
+  let destinationUrl: URL;
   try {
-    destination = new URL(product.affiliateUrl);
+    destinationUrl = new URL(product.affiliateUrl);
   } catch {
-    return new NextResponse("Invalid retailer destination", { status: 500 });
-  }
-  if (!ALLOWED_PROTOCOLS.has(destination.protocol)) {
-    return new NextResponse("Only secure HTTPS destinations are allowed", { status: 400 });
+    return new NextResponse("Invalid retailer destination URL configured", { status: 500 });
   }
 
-  // TODO: persist a click event server-side before redirecting.
-  return NextResponse.redirect(destination, 302);
+  if (!ALLOWED_PROTOCOLS.has(destinationUrl.protocol)) {
+    return new NextResponse("Security error: Only secure HTTPS destinations are permitted", { status: 400 });
+  }
+
+  // Extract Request Context
+  const searchParams = request.nextUrl.searchParams;
+  const campaign = searchParams.get("cmp") || searchParams.get("campaign") || "editorial";
+  const userAgent = request.headers.get("user-agent") || "";
+  const referer = request.headers.get("referer") || "";
+  const rawIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
+  const country =
+    request.headers.get("x-vercel-ip-country") ||
+    request.headers.get("cf-ipcountry") ||
+    searchParams.get("country") ||
+    "GLOBAL";
+
+  const isBot = isBotTraffic(userAgent);
+  const clickId = generateClickId();
+  const ipHash = hashIp(rawIp);
+
+  // Persist outbound click event asynchronously
+  try {
+    await dbService.recordClickEvent({
+      clickId,
+      productId: product.id,
+      productSlug: product.slug,
+      merchant: product.merchant,
+      country,
+      campaign,
+      referer,
+      userAgent: userAgent.substring(0, 200),
+      ipHash,
+      isBot,
+    });
+  } catch (err) {
+    console.error("Failed to log outbound click event:", err);
+  }
+
+  // Append tracking sub-id to final destination
+  const trackedUrl = appendTrackingParam(product.affiliateUrl, clickId, campaign);
+
+  // 302 Temporary Redirect to merchant with no-cache headers to ensure accurate tracking
+  return NextResponse.redirect(trackedUrl, {
+    status: 302,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+      "X-Click-Id": clickId,
+    },
+  });
 }

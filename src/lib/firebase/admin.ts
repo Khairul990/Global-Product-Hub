@@ -38,6 +38,6 @@ if (typeof window === "undefined") {
   }
 }
 
-export const adminAuth: Auth | null = adminApp ? getAuth(adminApp) : null;
-export const adminDb: Firestore | null = adminApp ? getFirestore(adminApp) : null;
-export const adminStorage: Storage | null = adminApp ? getStorage(adminApp) : null;
+export const adminAuth: Auth | null = (adminApp && isFirebaseAdminConfigured) ? getAuth(adminApp) : null;
+export const adminDb: Firestore | null = (adminApp && isFirebaseAdminConfigured) ? getFirestore(adminApp) : null;
+export const adminStorage: Storage | null = (adminApp && isFirebaseAdminConfigured) ? getStorage(adminApp) : null;
