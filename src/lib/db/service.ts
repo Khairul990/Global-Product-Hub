@@ -117,7 +117,7 @@ export const dbService = {
   }): Promise<DbProduct[]> {
     if (adminDb) {
       try {
-        let q = adminDb.collection("products") as FirebaseFirestore.Query;
+        let q: any = adminDb.collection("products");
         if (options?.publishedOnly !== false) {
           q = q.where("published", "==", true);
         }
@@ -127,15 +127,15 @@ export const dbService = {
         if (options?.featuredOnly) {
           q = q.where("featured", "==", true);
         }
-        const snap = await q.get();
+        const snap: any = await q.get();
         if (!snap.empty) {
-          let list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as DbProduct));
+          let list: DbProduct[] = snap.docs.map((d: any) => ({ id: d.id, ...d.data() } as DbProduct));
           if (options?.search) {
             const term = options.search.toLowerCase();
-            list = list.filter((p) => p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term));
+            list = list.filter((p: DbProduct) => p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term));
           }
           if (options?.country) {
-            list = list.filter((p) => p.countryAvailability.includes(options.country!));
+            list = list.filter((p: DbProduct) => p.countryAvailability.includes(options.country!));
           }
           return list;
         }

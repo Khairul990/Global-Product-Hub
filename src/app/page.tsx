@@ -5,10 +5,10 @@ import ProductCard from "@/components/ProductCard";
 import AdSlot from "@/components/ads/AdSlot";
 import { dbService } from "@/lib/db/service";
 
-export default async function HomePage(props: {
+export default async function HomePage(props?: {
   searchParams?: Promise<{ category?: string; q?: string }>;
 }) {
-  const resolvedSearchParams = props.searchParams ? await props.searchParams : undefined;
+  const resolvedSearchParams = props?.searchParams ? await props.searchParams : undefined;
   const category = resolvedSearchParams?.category;
   const q = resolvedSearchParams?.q;
 

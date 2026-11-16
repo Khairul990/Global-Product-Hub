@@ -8,10 +8,10 @@ import ProductCard from "@/components/ProductCard";
 import AdSlot from "@/components/ads/AdSlot";
 import { dbService } from "@/lib/db/service";
 
-export async function generateMetadata(props: {
+export async function generateMetadata(props?: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const params = await props.params;
+  const params = props?.params ? await props.params : undefined;
   const slug = params?.slug;
   if (!slug) return {};
   const product = await dbService.getProductBySlug(slug);
@@ -28,10 +28,10 @@ export async function generateMetadata(props: {
   };
 }
 
-export default async function ProductDetailPage(props: {
+export default async function ProductDetailPage(props?: {
   params: Promise<{ slug: string }>;
 }) {
-  const params = await props.params;
+  const params = props?.params ? await props.params : undefined;
   const slug = params?.slug;
   if (!slug) notFound();
   const product = await dbService.getProductBySlug(slug);
