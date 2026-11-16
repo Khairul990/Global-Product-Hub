@@ -11,33 +11,25 @@ function formatPrivateKey(key?: string) {
 
 let adminApp: App | undefined;
 
-if (typeof window === "undefined") {
+if (typeof window === "undefined" && isFirebaseAdminConfigured) {
   const currentApps = getApps();
   if (currentApps.length === 0) {
-    if (isFirebaseAdminConfigured) {
-      try {
-        adminApp = initializeApp({
-          credential: cert({
-            projectId: env.FIREBASE_ADMIN_PROJECT_ID!,
-            clientEmail: env.FIREBASE_ADMIN_CLIENT_EMAIL!,
-            privateKey: formatPrivateKey(env.FIREBASE_ADMIN_PRIVATE_KEY)!,
-          }),
-        });
-      } catch (e) {
-        console.warn("Failed to initialize Firebase Admin with cert:", e);
-      }
-    } else {
-      try {
-        adminApp = initializeApp();
-      } catch {
-        // Ignored during build or when default credentials not present
-      }
+    try {
+      adminApp = initializeApp({
+        credential: cert({
+          projectId: env.FIREBASE_ADMIN_PROJECT_ID!,
+          clientEmail: env.FIREBASE_ADMIN_CLIENT_EMAIL!,
+          privateKey: formatPrivateKey(env.FIREBASE_ADMIN_PRIVATE_KEY)!,
+        }),
+      });
+    } catch (e) {
+      console.warn("Failed to initialize Firebase Admin with cert:", e);
     }
   } else {
     adminApp = currentApps[0];
   }
 }
 
-export const adminAuth: Auth | null = (adminApp && isFirebaseAdminConfigured) ? getAuth(adminApp) : null;
-export const adminDb: Firestore | null = (adminApp && isFirebaseAdminConfigured) ? getFirestore(adminApp) : null;
-export const adminStorage: Storage | null = (adminApp && isFirebaseAdminConfigured) ? getStorage(adminApp) : null;
+export const adminAuth: Auth | null = adminApp ? getAuth(adminApp) : null;
+export const adminDb: Firestore | null = adminApp ? getFirestore(adminApp) : null;
+export const adminStorage: Storage | null = adminApp ? getStorage(adminApp) : null;

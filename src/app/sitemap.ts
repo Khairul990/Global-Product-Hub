@@ -2,7 +2,11 @@ import { MetadataRoute } from "next";
 import { dbService } from "@/lib/db/service";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://global-product-hub.vercel.app";
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://producthub-rho.vercel.app";
+  const siteUrl = rawSiteUrl.startsWith("http://") || rawSiteUrl.startsWith("https://")
+    ? rawSiteUrl
+    : `https://${rawSiteUrl}`;
+
   const products = await dbService.getProducts({ publishedOnly: true });
 
   const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({

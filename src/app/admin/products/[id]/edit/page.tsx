@@ -5,9 +5,7 @@ import { getServerAdminUser } from "@/lib/auth/server";
 import { dbService } from "@/lib/db/service";
 import ProductForm from "../../ProductForm";
 
-export default async function EditProductPage({
-  params,
-}: {
+export default async function EditProductPage(props: {
   params: Promise<{ id: string }>;
 }) {
   const user = await getServerAdminUser();
@@ -15,7 +13,9 @@ export default async function EditProductPage({
     redirect("/admin/login");
   }
 
-  const { id } = await params;
+  const params = await props.params;
+  const id = params?.id;
+  if (!id) notFound();
   const product = await dbService.getProductById(id);
   if (!product) notFound();
 
