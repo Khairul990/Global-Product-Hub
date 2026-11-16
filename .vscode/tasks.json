@@ -4,9 +4,8 @@
 		{
 			"type": "npm",
 			"script": "dev",
-			"path": "global-product-hub",
 			"problemMatcher": [],
-			"label": "npm: dev - global-product-hub",
+			"label": "npm: dev",
 			"detail": "next dev"
 		}
 	]
