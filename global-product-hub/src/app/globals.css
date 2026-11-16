@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #f7f7f4; color: #17212b; font-family: Arial, Helvetica, sans-serif; }
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; }
+::selection { background: #ead6c9; color: #17212b; }
+.container { width: min(1160px, calc(100% - 40px)); margin-inline: auto; }
+.eyebrow { font-size: 11px; letter-spacing: .17em; text-transform: uppercase; font-weight: 700; color: #a36543; }
+.serif { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -.045em; }
+.product-art { min-height: 230px; display: grid; place-items: center; border-radius: 5px; position: relative; overflow: hidden; }
+.product-art:before, .product-art:after { content: ''; position: absolute; border: 1px solid rgba(23,33,43,.12); border-radius: 50%; width: 240px; height: 240px; }
+.product-art:after { width: 180px; height: 180px; }
+.product-symbol { font-family: Georgia, serif; font-size: 82px; position: relative; z-index: 1; color: rgba(23,33,43,.72); }
+.art-sand { background: linear-gradient(145deg,#eee5d8,#d7c8b5); }
+.art-clay { background: linear-gradient(145deg,#e9d7cc,#c69d87); }
+.art-olive { background: linear-gradient(145deg,#e4e7d8,#b7c0a4); }
+.art-blue { background: linear-gradient(145deg,#dce7e9,#a9c2c7); }
+.art-plum { background: linear-gradient(145deg,#e8dfe8,#c6b3c9); }
+.art-rose { background: linear-gradient(145deg,#f1e1df,#d9b8b5); }
+.card-link:hover .product-art { filter: saturate(1.08); }
+.nav-link { color: #687580; font-size: 13px; }
+.nav-link:hover { color: #17212b; }
+.btn-primary { background: #17212b; color: white; padding: 14px 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 3px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: background .2s; }
+.btn-primary:hover { background: #a36543; }
+.btn-secondary { border: 1px solid #d8dcd8; padding: 13px 18px; border-radius: 3px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
