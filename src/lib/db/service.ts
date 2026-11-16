@@ -98,6 +98,14 @@ let inMemorySiteSettings: DbSiteSettings = {
    Falls back to structured in-memory store in dev/local mode.
 ==================================================================== */
 
+export type CreateProductInput = Partial<DbProduct> & {
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  merchant: string;
+};
+
 export const dbService = {
   // PRODUCTS
   async getProducts(options?: {
@@ -186,10 +194,20 @@ export const dbService = {
     return inMemoryProducts.find((p) => p.id === id) || null;
   },
 
-  async createProduct(product: Omit<DbProduct, "id" | "createdAt" | "updatedAt">): Promise<DbProduct> {
+  async createProduct(product: CreateProductInput): Promise<DbProduct> {
     const id = `p-${Date.now()}`;
+    const slug = product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const newProduct: DbProduct = {
+      label: product.label || "Editor's pick",
+      currency: product.currency || "USD",
+      countryAvailability: product.countryAvailability || ["US", "GB", "CA", "AU"],
+      featured: product.featured ?? false,
+      accent: product.accent || "sand",
+      symbol: product.symbol || "✳",
+      affiliateUrl: product.affiliateUrl ?? null,
+      published: product.published ?? true,
       ...product,
+      slug,
       id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

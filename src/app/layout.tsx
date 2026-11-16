@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ConsentBanner from "@/components/consent/ConsentBanner";
 
 export const metadata: Metadata = {
   title: {
-    default: "Global Product Hub — Thoughtful finds, better choices",
+    default: "Global Product Hub — Good Finds. Well Considered.",
     template: "%s | Global Product Hub",
   },
-  description: "Discover considered products, useful finds and offers from merchants around the world.",
+  description: "Discover considered products, useful finds and verified offers from retailers around the world.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://global-product-hub.vercel.app"),
   openGraph: {
     title: "Global Product Hub",
-    description: "Thoughtful finds, better choices.",
+    description: "Good Finds. Well Considered.",
     type: "website",
   },
 };
@@ -18,7 +19,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <ConsentBanner />
+      </body>
     </html>
   );
 }

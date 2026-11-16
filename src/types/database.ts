@@ -7,24 +7,33 @@ export const ProductSchema = z.object({
   name: z.string().min(2),
   category: z.string(),
   categoryId: z.string().optional(),
-  label: z.string().default("Editor's pick"),
+  label: z.string().optional(),
   description: z.string(),
   price: z.number().positive(),
   compareAtPrice: z.number().positive().optional(),
-  currency: z.string().length(3).default("USD"),
+  currency: z.string().length(3).optional(),
   merchant: z.string(),
   merchantId: z.string().optional(),
-  countryAvailability: z.array(z.string().length(2)).default(["US", "GB", "CA", "AU"]),
-  featured: z.boolean().default(false),
-  accent: z.string().default("sand"),
-  symbol: z.string().default("✳"),
+  countryAvailability: z.array(z.string().length(2)).optional(),
+  featured: z.boolean().optional(),
+  accent: z.string().optional(),
+  symbol: z.string().optional(),
   imageUrl: z.string().url().optional(),
-  affiliateUrl: z.string().url().nullable().default(null),
-  published: z.boolean().default(true),
+  affiliateUrl: z.string().url().nullable().optional(),
+  published: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
-export type DbProduct = z.infer<typeof ProductSchema>;
+export type DbProduct = z.infer<typeof ProductSchema> & {
+  label: string;
+  currency: string;
+  countryAvailability: string[];
+  featured: boolean;
+  accent: string;
+  symbol: string;
+  affiliateUrl: string | null;
+  published: boolean;
+};
 
 // 2. Categories
 export const CategorySchema = z.object({
